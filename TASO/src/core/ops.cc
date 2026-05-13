@@ -845,6 +845,11 @@ void Graph::export_to_file(std::string file_name)
   assert(opList.size() == inEdges.size());
 }
 
+void Graph::export_to_file_raw(char* file_name)
+{
+  export_to_file(std::string(file_name));
+}
+
 /* Exports an operator with the following format:
  * guid
  * type
@@ -952,6 +957,7 @@ void Graph::export_op(ofstream &file_stream, Op &op)
     case OP_SIGMOID:
     case OP_TANH:
     case OP_BATCHNORM:
+    case OP_DROPOUT:
     case OP_INPUT:
     case OP_WEIGHT:
     {
@@ -959,6 +965,19 @@ void Graph::export_op(ofstream &file_stream, Op &op)
       for (int i = 0; i < t.numDim; i++)
       {
         file_stream << t.dim[i]; // 0 - N
+        if (i < t.numDim - 1)
+        {
+          file_stream << ',';
+        }
+      }
+      break;
+    }
+    case OP_ENLARGE:
+    {
+      Tensor t = op.ptr->outputs[0];
+      for (int i = 0; i < t.numDim; i++)
+      {
+        file_stream << t.dim[i];
         if (i < t.numDim - 1)
         {
           file_stream << ',';
@@ -1009,7 +1028,28 @@ void Graph::export_op(ofstream &file_stream, Op &op)
       break;
     }
     default:
+    {
+      fprintf(stderr, "Unsupported export op: guid=%zu type=%d name=%s inputs=%d outputs=%d\n",
+              op.guid, op.ptr->type, op.to_string().c_str(),
+              op.ptr->numInputs, op.ptr->numOutputs);
+      for (int input_idx = 0; input_idx < op.ptr->numInputs; input_idx++) {
+        Tensor t = op.ptr->inputs[input_idx];
+        fprintf(stderr, "  input[%d]: ndim=%d dims=", input_idx, t.numDim);
+        for (int dim_idx = 0; dim_idx < t.numDim; dim_idx++) {
+          fprintf(stderr, "%d%s", t.dim[dim_idx], dim_idx + 1 == t.numDim ? "" : "x");
+        }
+        fprintf(stderr, "\n");
+      }
+      for (int output_idx = 0; output_idx < op.ptr->numOutputs; output_idx++) {
+        Tensor t = op.ptr->outputs[output_idx];
+        fprintf(stderr, "  output[%d]: ndim=%d dims=", output_idx, t.numDim);
+        for (int dim_idx = 0; dim_idx < t.numDim; dim_idx++) {
+          fprintf(stderr, "%d%s", t.dim[dim_idx], dim_idx + 1 == t.numDim ? "" : "x");
+        }
+        fprintf(stderr, "\n");
+      }
       assert(false);
+    }
   }
   file_stream << std::endl;
 }
@@ -1400,4 +1440,3 @@ void Graph::print_costs(void)
          exe_time, flops / 1024.0 / 1024.0 / 1024.0,
          mem_acc * 4.0 / 1024.0 / 1024.0, num_kernels);
 }
-

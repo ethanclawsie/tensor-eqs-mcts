@@ -20,6 +20,15 @@ TensorHandle Graph::batchnorm(const TensorHandle _input,
                               const TensorHandle _scale,
                               const TensorHandle _bias,
                               const TensorHandle _mean,
+                              const TensorHandle _var)
+{
+  return batchnorm(_input, _scale, _bias, _mean, _var, -1.0f);
+}
+
+TensorHandle Graph::batchnorm(const TensorHandle _input,
+                              const TensorHandle _scale,
+                              const TensorHandle _bias,
+                              const TensorHandle _mean,
                               const TensorHandle _var,
                               const float _epsilon)
 {
@@ -56,6 +65,15 @@ Op Model::get_or_create_batchnorm(const Tensor& _input,
   ret.guid = global_unique_id ++;
   ret.ptr = bnOp;
   return ret;
+}
+
+Op Model::get_or_create_batchnorm(Tensor _input,
+                                  Tensor _scale,
+                                  Tensor _bias,
+                                  Tensor _mean,
+                                  Tensor _var)
+{
+  return get_or_create_batchnorm(_input, _scale, _bias, _mean, _var, -1.0f);
 }
 
 BatchNorm::BatchNorm(Model* _model,

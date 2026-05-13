@@ -1,3 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export TENSOR_EQS_MCTS_ROOT="${TENSOR_EQS_MCTS_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+cd "$SCRIPT_DIR"
+
 num_passes=5
 
 models=(

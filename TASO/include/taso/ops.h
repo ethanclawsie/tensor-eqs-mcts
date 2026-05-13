@@ -497,6 +497,7 @@ public:
   void replace_node(Op oldOp, Op newOp);
   void remove_node(Op oldOp);
   void export_to_file(std::string file_name);
+  void export_to_file_raw(char* file_name);
   // This conv2ds will create a weight tensor
   TensorHandle group_conv2d(int groups,
                             const TensorHandle _input,
@@ -505,6 +506,11 @@ public:
                             int _strideH, int strideW,
                             PaddingMode _padding,
                             ActiMode _activation = AC_MODE_NONE);
+  TensorHandle batchnorm(const TensorHandle _input,
+                         const TensorHandle _scale,
+                         const TensorHandle _bias,
+                         const TensorHandle _mean,
+                         const TensorHandle _var);
   TensorHandle batchnorm(const TensorHandle _input,
                          const TensorHandle _scale,
                          const TensorHandle _bias,
@@ -1356,6 +1362,11 @@ public:
                              const Tensor& _mean,
                              const Tensor& _var,
                              const float _epsilon);
+  Op get_or_create_batchnorm(Tensor _input,
+                             Tensor _scale,
+                             Tensor _bias,
+                             Tensor _mean,
+                             Tensor _var);
   Op get_or_create_cast(const Tensor& _input, DataType _datatype);
   Op get_or_create_concat(int axis, int n, Tensor* _inputs, bool* _needCopy);
   Op get_or_create_constant(int ndim, int* dims, OpType type);

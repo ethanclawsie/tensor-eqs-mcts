@@ -10,6 +10,7 @@ use std::time::*;
 use std::time::{Duration, Instant};
 use crate::model::*;
 use crate::optimize::*;
+use crate::paths;
 use crate::rewrites::*;
 use crate::{parse::*, verify::*};
 
@@ -122,36 +123,36 @@ pub fn extract_by_ilp_rmcts(
     // let class_constraint = matches.is_present("class_constraint");
     // let no_order = false matches.is_present("no_order");
 
-    let mut arg_vec = vec!["/usr/tensat/extractor/extract.py"];
+    let mut arg_vec = vec![paths::tensat_file("extractor/extract.py")];
     if order_var_int {
-        arg_vec.push("--order_var_int");
+        arg_vec.push("--order_var_int".to_string());
     }
     if class_constraint {
-        arg_vec.push("--eclass_constraint");
+        arg_vec.push("--eclass_constraint".to_string());
     }
     if no_order {
-        arg_vec.push("--no_order");
+        arg_vec.push("--no_order".to_string());
     }
     if initialize {
-        arg_vec.push("--initialize")
+        arg_vec.push("--initialize".to_string())
     }
 
     let binding = ilp_time_sec.to_string();
-    arg_vec.push("--time_lim_sec");
-    arg_vec.push(&binding);
+    arg_vec.push("--time_lim_sec".to_string());
+    arg_vec.push(binding);
 
-    arg_vec.push("--num_thread");
     let binding = ilp_num_threads.to_string();
-    arg_vec.push(&binding);
+    arg_vec.push("--num_thread".to_string());
+    arg_vec.push(binding);
 
-    arg_vec.push("--output_dir");
-    arg_vec.push(&ilp_dir);
+    arg_vec.push("--output_dir".to_string());
+    arg_vec.push(ilp_dir.clone());
 
-    arg_vec.push("--thread_name");
-    arg_vec.push(thread_name);
+    arg_vec.push("--thread_name".to_string());
+    arg_vec.push(thread_name.to_string());
 
     if false {
-        arg_vec.push("--verbose");
+        arg_vec.push("--verbose".to_string());
     }
 
     // if let Some(time_lim) = matches.value_of("ilp_time_sec") {

@@ -5,13 +5,20 @@ use std::path::PathBuf;
 
 fn main() {
     // Tell cargo to tell rustc to link the libraries.
-    println!("cargo:rustc-link-search=/opt/conda/lib");
     println!("cargo:rustc-link-lib=protobuf");
     println!("cargo:rustc-link-search=/usr/local/lib");
     println!("cargo:rustc-link-lib=taso_runtime");
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=wrapper.h");
+    println!("cargo:rerun-if-env-changed=TENSAT_REGENERATE_BINDINGS");
+    println!("cargo:rustc-check-cfg=cfg(tensat_regenerate_bindings)");
+
+    if env::var("TENSAT_REGENERATE_BINDINGS").as_deref() != Ok("1") {
+        return;
+    }
+
+    println!("cargo:rustc-cfg=tensat_regenerate_bindings");
 
     // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for

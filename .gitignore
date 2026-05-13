@@ -1,0 +1,20 @@
+# Local native build outputs
+/TASO/build/
+/TASO/python/build/
+/TASO/python/taso.egg-info/
+/TASO/python/taso/__pycache__/
+/TASO/python/taso/_cython/core.cpp
+/TASO/python/taso/core*.so
+
+# Experiment outputs
+/experiments/tensat/
+/experiments/tensor_eqs_mcts/
+/experiments/rmcts/
+
+# Local environment and notes
+/.venv/
+/notes.txt
+
+# OS/editor noise
+.DS_Store
+._*

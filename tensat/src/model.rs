@@ -5,8 +5,11 @@
 #![allow(unused_parens)]
 #![allow(unused_variables)]
 
-// include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
-include!(concat!("/usr/tensat/taso_bindings.rs"));
+#[cfg(not(tensat_regenerate_bindings))]
+include!(concat!(env!("CARGO_MANIFEST_DIR"), "/taso_bindings.rs"));
+
+#[cfg(tensat_regenerate_bindings)]
+include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 //use rand::prelude::*;
 use rand;

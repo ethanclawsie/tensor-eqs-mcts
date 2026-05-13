@@ -1,8 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="${TENSOR_EQS_MCTS_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+EXPERIMENTS_DIR="$REPO_ROOT/experiments"
+
 # Settings
 mode="optimize" # Mode to run, can be verify, optimize, test, convert
-rules=converted.txt # Provide a file with rewrite rules
-multi_rules_default="converted_multi.txt" # Default file with multi-pattern rules. Every two lines belong to one multi-pattern rule
-multi_rules_nasrnn="converted_multi_nasrnn.txt" # Multi-pattern rules file for NASRNN
+rules="$SCRIPT_DIR/converted.txt" # Provide a file with rewrite rules
+multi_rules_default="$SCRIPT_DIR/converted_multi.txt" # Default file with multi-pattern rules. Every two lines belong to one multi-pattern rule
+multi_rules_nasrnn="$SCRIPT_DIR/converted_multi_nasrnn.txt" # Multi-pattern rules file for NASRNN
 out_file="stats.txt" # Provide a output file name. For mode convert, it's for converted rules; for mode optimize, it's for measured runtime
 save_graph="io" # all, io, none
 extract="ilp" # greedy, egg_ilp, ilp
@@ -67,6 +74,6 @@ for pass in $(seq 0 $(expr $num_passes - 1)); do
         else
             multi_rules=$multi_rules_default
         fi
-        cargo run --release -- --iter_multi $iter_multi --model $model --mode $mode --rules $rules --multi_rules $multi_rules --out_file $out_file -s $save_graph --n_iter $n_iter --n_sec $n_sec --n_nodes $n_nodes --ilp_time_sec $ilp_time_sec --extract $extract --ilp_num_threads $ilp_num_threads --node_multi $node_multi --output_dir /usr/experiments/tensat/"$model"_"$iter_multi"_"$pass" $export_models$use_multi$no_order$all_weight_only$no_cycle$order_var_int$class_constraint$initial_with_greedy$filter_before$saturation_only
+        cargo run --release -- --iter_multi $iter_multi --model $model --mode $mode --rules "$rules" --multi_rules "$multi_rules" --out_file $out_file -s $save_graph --n_iter $n_iter --n_sec $n_sec --n_nodes $n_nodes --ilp_time_sec $ilp_time_sec --extract $extract --ilp_num_threads $ilp_num_threads --node_multi $node_multi --output_dir "$EXPERIMENTS_DIR/tensat/${model}_${iter_multi}_${pass}" $export_models$use_multi$no_order$all_weight_only$no_cycle$order_var_int$class_constraint$initial_with_greedy$filter_before$saturation_only
     done
 done

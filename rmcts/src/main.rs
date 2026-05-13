@@ -15,7 +15,8 @@ mod utils;
 mod custom_models;
 
 use std::fs::{create_dir_all, read_to_string};
-use std::path::Path;
+use std::env as std_env;
+use std::path::{Path, PathBuf};
 use std::time::Instant;
 use serde::{Serialize, Deserialize};
 use serde_json::{to_string, json};
@@ -35,6 +36,19 @@ use std::alloc;
 use cap::Cap;
 #[global_allocator]
 static ALLOCATOR: Cap<alloc::System> = Cap::new(alloc::System, usize::max_value());
+
+fn repo_root() -> PathBuf {
+    std_env::var_os("TENSOR_EQS_MCTS_ROOT")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(".."))
+}
+
+fn repo_file(relative_path: &str) -> String {
+    repo_root()
+        .join(relative_path)
+        .to_string_lossy()
+        .into_owned()
+}
 
 define_language! {
     enum SimpleLanguage {
@@ -155,8 +169,8 @@ fn main() {
 
     let mut settings = Settings {
         model: String::from("resnet50"),
-        rules: String::from("/usr/tensat/converted.txt"),
-        multi_rules: String::from("/usr/tensat/converted_multi.txt"),
+        rules: repo_file("tensat/converted.txt"),
+        multi_rules: repo_file("tensat/converted_multi.txt"),
         save_graph: String::from("io"),
 
         n_sec: 10,
@@ -194,7 +208,7 @@ fn main() {
 
         // experiment tracking
         seed: 0,
-        experiments_base_path: String::from("/usr/experiments/tensor_eqs_mcts/"),
+        experiments_base_path: repo_file("experiments/tensor_eqs_mcts/"),
     };
 
     // // Experiment: extraction methods (egg_greedy, new_greedy, tensat_ilp)
@@ -226,12 +240,15 @@ fn main() {
         .unwrap();
     settings.final_extraction = final_extraction.clone();
 
-    settings.experiments_base_path = String::from("/usr/experiments/tensor_eqs_mcts/") + &extraction + "_" + &final_extraction + "/";
+    settings.experiments_base_path = repo_file(&format!(
+        "experiments/tensor_eqs_mcts/{}_{}",
+        extraction, final_extraction
+    ));
 
     if model == String::from("nasrnn") {
-        settings.multi_rules = String::from("/usr/tensat/converted_multi_nasrnn.txt");
+        settings.multi_rules = repo_file("tensat/converted_multi_nasrnn.txt");
     } else {
-        settings.multi_rules = String::from("/usr/tensat/converted_multi.txt");
+        settings.multi_rules = repo_file("tensat/converted_multi.txt");
     }
     
     optimize(settings);
@@ -272,7 +289,11 @@ fn test_extractor() {
     let mut tnsr_cost: TensorCost = tensat::optimize::TensorCost::new(&runner.egraph, &cost_model, true);
 
     // TENSAT ILP
-    let ilp_dir = Path::new("/usr/experiments/rmcts/tests/").join("ilp").into_os_string().into_string().unwrap();
+    let ilp_dir = repo_root()
+        .join("experiments/rmcts/tests/ilp")
+        .into_os_string()
+        .into_string()
+        .unwrap();
     let (expr, cost, duration) = extract_by_ilp_rmcts(&runner.egraph, root, &cost_model, false, false, true, false, 600, 1, ilp_dir, false);
     println!("TENSAT ILP base cost: {}, duration: {}", cost, duration);
 

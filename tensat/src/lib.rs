@@ -4,6 +4,7 @@ pub mod model;
 pub mod nasneta;
 pub mod nasrnn;
 pub mod optimize;
+pub mod paths;
 pub mod parse;
 pub mod resnet50;
 pub mod resnext50;

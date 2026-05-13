@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.22)
 project(TASO LANGUAGES CXX CUDA)
 
 if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/config.cmake)
